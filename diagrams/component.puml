@@ -1,0 +1,18 @@
+@startuml component
+!include c4_templates/C4_Component.puml
+
+title Component diagram for SmartHome - API Application
+
+Container(sha, "Smart Home Application", "Java", "Provides all the smart home functionality.")
+ContainerDb(db, "Database", "Relational Database Schema", "Stores user registration information, hashed authentication credentials, access logs, etc.")
+
+Container_Boundary(api, "API Application") {
+    Component(heating_controller, "Heating System Controller", "SmartHome API", "Provides endpoint set for manage heating system and get info about temperature.")
+    Component(services, "Heating System Services", "SmartHome Services", "Objects which do all functionality about heating system.")
+
+    Rel(heating_controller, services, "Uses")
+}
+
+Rel(sha, heating_controller, "Uses", "JSON/HTTPS")
+Rel(services, db, "Uses", "SQL")
+@enduml

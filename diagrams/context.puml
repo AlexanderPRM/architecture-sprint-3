@@ -1,0 +1,8 @@
+@startuml context
+!include c4_templates/C4_Context.puml
+
+Person(customer, "Customer", "Customer of SmartHome system")
+System(smarthome, "SmartHome", "Work with Heating system and Temperature sensors.")
+Rel_D(customer, smarthome, 'Turn on\off heating system and check temperature')
+
+@enduml

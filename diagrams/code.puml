@@ -1,0 +1,30 @@
+@startuml code
+!include c4_templates/C4_Component.puml
+
+title Code diagram for SmartHome - API Application
+
+Container(sha, "Smart Home Application", "Java", "Provides all the smart home functionality.")
+ContainerDb(db, "Database", "Relational Database Schema", "Stores user registration information, hashed authentication credentials, access logs, etc.")
+
+Container_Boundary(api, "API Application") {
+    Component(heating_controller, "HeatingSystemController", "SmartHome API", "Provides endpoint set for manage heating system and get info about temperature.")
+    Component(heating_system_service, "HeatingSystemService", "SmartHome Service", "Class which do all functionality about heating system.")
+    Component(temperature_sensors_service, "TemperatureSensorsService", "SmartHome Service", "Class which do all functionality about temperature sensors.")
+    Component(temperature_sensors_repo, "TemperatureSensorsRepo", "SmartHome Repo", "Repo which work with entity in DB.")
+    Component(heating_system_repo, "HeatingSystemRepo", "SmartHome Repo", "Repo which work with entity in DB.")
+
+    Rel(heating_controller, heating_system_service, "Uses")
+    Rel(heating_controller, temperature_sensors_service, "Uses")
+    Rel(heating_system_service, heating_system_repo, "Uses")
+    Rel(temperature_sensors_service, temperature_sensors_repo, "Uses")
+}
+Container_Boundary(db, 'Database') {
+    Component(heating_system_entity, "HeatingSystemEntity", "SmartHome Entity", "Entity of heating system.")
+    Component(temperature_sensors_entity, "TemperatureSensorsEntity", "SmartHome Entity", "Entity of temperature sensor.")
+}
+
+Rel(temperature_sensors_repo, temperature_sensors_entity, "Uses")
+Rel(heating_system_repo, heating_system_entity, "Uses")
+
+Rel(sha, heating_controller, "Uses", "JSON/HTTPS")
+@enduml
