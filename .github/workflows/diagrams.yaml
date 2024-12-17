@@ -2,11 +2,6 @@ name: PlantUML Diagrams
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   generate-diagrams:
