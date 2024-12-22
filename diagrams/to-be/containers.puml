@@ -1,0 +1,73 @@
+@startuml containers
+!include ../c4_templates/C4_Container.puml
+
+LAYOUT_LANDSCAPE()
+LAYOUT_WITH_LEGEND()
+
+
+System_Boundary(frontend_boundary, "SmartHome Frontend Boundary") {
+    Person(user, "User")
+    Container(ui, "SmartHome Frontend", "e.g React\Vue.js\Angular", "UI with which the user interacts")
+
+    Rel(user, ui, "Visit Smart Home UI", "HTTPS")
+}
+
+Container(api_gateway, "API Gateway", "e.g Nginx", "Is the entry point to Smart Home system")
+Rel(ui, api_gateway, "Send user request to API Gateway", "HTTPS")
+
+System_Ext(sensors_api, "Sensors API", "", "API for work with sensors themselves")
+
+System_Boundary(backend_boundary, "SmartHome Backend Boundary") {
+    System_Boundary(telemetry_domain, "Telemetry Domain") {
+        Container(telemetry, "Telemetry Microservice", "FastAPI", "Allows you to work with sensor telemetry")
+        ContainerDb(telemetry_db, "Telemetry Database", "PostgreSQL", "Store the telemetry history")
+        Rel_D(telemetry, telemetry_db, "")
+    }
+    System_Boundary(sensors_management_domain, "System Management Domain") {
+        Container(sensors_management, "Sensors Management Microservice", "FastAPI", "Manage sensors and send events in Kafka")
+        ContainerDb(sensors_management_db, "Sensors Management Database", "PostgreSQL", "Store sensors configurations")
+        Rel_D(sensors_management, sensors_management_db, "")
+    }
+    System_Boundary(auth_domain, "Auth Domain") {
+        Container(auth, "Auth microservice", "FastAPI", "Response to user authorization and authentication")
+        ContainerDb(auth_db, "Auth Database", "PostgreSQL", "Store user data")
+        ContainerDb(auth_cache, "Auth Cache", "Redis", "Store JWT Tokens")
+        Rel_R(auth, auth_db, "")
+        Rel_D(auth, auth_cache, "")
+    }
+    System_Boundary(scenarious_domain, "Scenarious Domain") {
+        Container(scenarious, "Scenarious microservice", "FastAPI", "Reacts to sensors events and execute prepared scenario")
+        ContainerDb(scenarious_db, "Scenarious Database", "PostgreSQL", "Store scenarious")
+        Rel_D(scenarious, scenarious_db, "")
+    }
+    System_Boundary(notifications_domain, "Notifications Domain") {
+        Container(notifications, "Notifications microservice", "FastAPI", "Send notification of different types e.g (Email, SMS, Push) to user")
+        ContainerDb(notifications_db, "Notifications Database", "PostgreSQL", "Store notifications templates")
+        ContainerQueue(notifications_queue, "RabbitMQ", "Store notifications events")
+        Container(notifications_workers, "Notifications Workers", "Python", "Read queue and send notifications")
+        Rel_D(notifications, notifications_db, "")
+        Rel_R(notifications, notifications_queue, "")
+        Rel_L(notifications_workers, notifications_queue, "")
+    }
+    ContainerQueue(sensors_queue, "Kafka", "Store sensors events")
+
+    Rel(scenarious, sensors_queue, "Send scenario")
+    Rel(sensors_queue, sensors_management, "Read and execute scenario")
+
+    Rel_L(sensors_management, sensors_api, "")
+    Rel_L(telemetry, sensors_api, "")
+
+    Rel(sensors_management, sensors_queue, "Send sensors management events")
+    Rel(telemetry, sensors_queue, "Send sensors telemetry events")
+
+    Rel(sensors_queue, notifications, "Read sensors queue and send notifications")
+    Rel(sensors_queue, scenarious, "Read sensors queue and run scenario if receive a trigger event")
+}
+
+Rel(api_gateway, telemetry, "Proxy user request to microservice", "HTTPS")
+Rel(api_gateway, sensors_management, "Proxy user request to microservice ", "HTTPS")
+Rel(api_gateway, auth, "Always check user authorization and proxy user request to microservice if needed", "HTTPS")
+Rel(api_gateway, scenarious, "Proxy user request to microservice", "HTTPS")
+Rel(api_gateway, notifications, "Proxy user request to microservice", "HTTPS")
+
+@enduml

@@ -1,0 +1,18 @@
+@startuml container
+!include ../c4_templates/C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+
+
+Person(user, "User")
+
+System_Boundary(c1, "SmartHome"){
+    Container(api, "SmartHome API", "Java", "Provides endpoint set for manage heating system and get info about temperature.")
+    ContainerDb(rel_db, "Relational Database", "PostgreSQL", "Stores temperature sensors and heating system info")
+}
+
+Rel(user, api, "Uses", "HTTPS\HTTP")
+
+Rel(api, rel_db, "Reads  from  and  writes  to", "SQL, port 5432")
+
+@enduml

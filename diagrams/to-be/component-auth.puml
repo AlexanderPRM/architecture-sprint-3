@@ -1,0 +1,45 @@
+@startuml auth-component
+!include ../c4_templates/C4_Component.puml
+
+LAYOUT_LANDSCAPE()
+LAYOUT_WITH_LEGEND()
+
+Container(api_gateway, "API Gateway", "e.g Nginx", "Is the entry point to Smart Home system")
+
+ContainerDb(auth_db, "Users Database", "PostgreSQL", "Store user data")
+ContainerDb(auth_cache, "JWT Tokens Cache", "Redis", "Store JWT Tokens")
+System_Boundary(auth_domain, "Auth API") {
+    Container(signup, "Signup Controller", "FastAPI", "Allows users to signup")
+    Container(signin, "Signin Controller", "FastAPI", "Allows users to signin")
+    Container(forget_password, "Forget Password", "FastAPI", "Allows users reset password")
+    Container(check_authorization, "Check user authorization controller", "FastAPI", "Check user access")
+    Container(refresh_tokens, "Refresh user JWT Tokens Controller", "FastAPI", "")
+
+    Container(signup_usecase, "Signup Use Case", "FastAPI", "Component which handle Signup use case")
+    Container(signin_usecase, "Signin Use Case", "FastAPI", "Component which handle Signin use case")
+    Container(forget_password_usecase, "Forget Password Use Case", "FastAPI", "Component which handle Forget Password use case")
+    Container(check_authorization_usecase, "Check Authorization Use Case", "FastAPI", "Component which handle Check Authorization use case")
+    Container(refresh_tokens_usecase, "Refresh Tokens Use Case", "FastAPI", "Component which handle Refresh Tokens use case")
+
+    Rel_R(signup, signup_usecase, "")
+    Rel_R(signin, signin_usecase, "")
+    Rel_R(forget_password, forget_password_usecase, "")
+    Rel_R(check_authorization, check_authorization_usecase, "")
+    Rel_R(refresh_tokens, refresh_tokens_usecase, "")
+
+    Rel(signup_usecase, auth_cache, "")
+    Rel(signup_usecase, auth_db, "")
+    Rel(signin_usecase, auth_cache, "")
+    Rel(signin_usecase, auth_db, "")
+    Rel(refresh_tokens_usecase, auth_cache, "")
+    Rel(forget_password_usecase, auth_db, "")
+    Rel(check_authorization_usecase, auth_cache, "")
+}
+
+Rel(api_gateway, signup, "Proxy user request", "HTTPS")
+Rel(api_gateway, signin, "Proxy user request", "HTTPS")
+Rel(api_gateway, forget_password, "Proxy user request", "HTTPS")
+Rel(api_gateway, check_authorization, "Automatically check user authorization", "HTTPS")
+Rel(api_gateway, refresh_tokens, "Automatically refresh user tokens", "HTTPS")
+
+@enduml
