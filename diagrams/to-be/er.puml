@@ -1,0 +1,81 @@
+@startuml
+
+!define primary_key(x) <b>x</b>
+!define foreign_key(x) <u>x</u>
+
+
+title Smart Home ER Diagram
+
+top to bottom direction
+
+!includeurl ../c4_templates/C4_Component.puml
+
+
+entity "User" {
+      * user_id : number
+      --
+      * house_id : FK number
+      name: varchar
+      email : varchar
+      password : varchar
+      ...
+}
+
+entity "Role" {
+      * role_id : number
+      --
+      name: varchar
+      access_level: number
+      ...
+}
+
+entity "House"{
+    * house_id : number
+--
+    * user_id : number
+     address: varchar
+     ...
+}
+
+entity "System"{
+* system_id : number
+--
+    name: varchar
+    ...
+}
+
+entity "Device"{
+* device_id : number
+--
+    name: varchar
+    type: FK number
+    is_enabled: bool
+    ...
+}
+
+entity "DeviceType"{
+* device_type_id : number
+--
+    name: varchar
+    ...
+}
+
+entity "Scenario"{
+* device_type_id : number
+--
+    name: varchar
+    system_id: FK number
+    ...
+}
+
+
+User "1" -- "0..*" House
+User "0..*" -- "0..*" Role
+House  "1" -- "0..*" System
+System  "1" -- "0..*" Device 
+Device  "0..*" -- "1" DeviceType
+Scenario  "0..*" -- "1" System
+
+@enduml
+
+@enduml

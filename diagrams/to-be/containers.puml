@@ -1,5 +1,5 @@
 @startuml containers
-!include ../c4_templates/C4_Component.puml
+!include ../c4_templates/C4_Container.puml
 
 LAYOUT_LANDSCAPE()
 LAYOUT_WITH_LEGEND()
@@ -69,3 +69,5 @@ Rel(api_gateway, sensors_management, "Proxy user request to microservice ", "HTT
 Rel(api_gateway, auth, "Always check user authorization and proxy user request to microservice if needed", "HTTPS")
 Rel(api_gateway, scenarious, "Proxy user request to microservice", "HTTPS")
 Rel(api_gateway, notifications, "Proxy user request to microservice", "HTTPS")
+
+@enduml
